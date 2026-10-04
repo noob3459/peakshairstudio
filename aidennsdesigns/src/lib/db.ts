@@ -1,5 +1,6 @@
 import "server-only";
 import { Pool } from "pg";
+import { randomUUID } from "node:crypto";
 import { SEED_PAGES, SEED_PROJECTS, SEED_SETTINGS } from "./seed";
 
 type Row = Record<string, any>;
@@ -7,6 +8,123 @@ type Runner = {
   query: (sql: string, params?: unknown[]) => Promise<Row[]>;
   exec: (sql: string) => Promise<void>;
 };
+
+const TERMS_MIGRATION = "aidenns-designs-white-wordmark-v4-2026-10";
+
+function refreshBrand(value: any, key = ""): any {
+  if (typeof value === "string") {
+    if (["href", "url", "liveUrl", "tutoringUrl", "slug", "id"].includes(key) || /^(https?:\/\/|mailto:|tel:)/i.test(value)) return value;
+    return value.replace(/AidennsDesigns/g, "Aidenn's Designs");
+  }
+  if (Array.isArray(value)) return value.map((item) => refreshBrand(item));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, refreshBrand(v, k)]));
+  }
+  return value;
+}
+
+function refreshSeededTerms(slug: string, raw: any, seeded: any): any {
+  if (!raw || !seeded || !Array.isArray(raw.sections)) return refreshBrand(raw);
+  const canonical = seeded.sections as any[];
+  const replacement = (section: any) => {
+    if (section.type === "pricing") {
+      return canonical.find((candidate) => candidate.type === "pricing" && (candidate.anchor || "") === (section.anchor || ""));
+    }
+    if (section.type === "text" && ["domains", "hosting-access", "limits"].includes(section.anchor)) {
+      return canonical.find((candidate) => candidate.type === "text" && candidate.anchor === section.anchor);
+    }
+    if (slug === "about" && section.type === "text" && /what aidenn(?:s|'s)\s*designs does/i.test(section.heading || "")) {
+      return canonical.find((candidate) => candidate.type === "text" && /what aidenn's designs does/i.test(candidate.heading || ""));
+    }
+    if (slug === "home" && section.type === "services") {
+      return canonical.find((candidate) => candidate.type === "services");
+    }
+    if (slug === "home" && section.type === "hero" && section.variant === "home") {
+      return canonical.find((candidate) => candidate.type === "hero" && candidate.variant === "home");
+    }
+    if ((slug === "home" || slug === "about") && section.type === "features") {
+      return canonical.find((candidate) => candidate.type === "features");
+    }
+    if (slug === "process" && section.type === "process") {
+      return canonical.find((candidate) => candidate.type === "process");
+    }
+    if (section.type === "faq") {
+      return canonical.find((candidate) => candidate.type === "faq");
+    }
+    return undefined;
+  };
+  const sections = raw.sections.map((section: any) => {
+    const template = replacement(section);
+    if (!template) return section;
+    if (section.type === "faq") {
+      const oldItems = Array.isArray(section.items) ? section.items : [];
+      const newItems = [...oldItems];
+      const matches = (oldQuestion: string, nextQuestion: string) => {
+        if (/domain is included/i.test(nextQuestion)) return /domain is included/i.test(oldQuestion);
+        if (/who owns my domain/i.test(nextQuestion)) return /who owns my domain/i.test(oldQuestion);
+        if (/what happens if i cancel/i.test(nextQuestion)) return /what happens if i cancel/i.test(oldQuestion);
+        if (/how much does a website cost/i.test(nextQuestion)) return /how much does a website cost/i.test(oldQuestion);
+        if (/can i buy my website/i.test(nextQuestion)) return /can i buy my website/i.test(oldQuestion);
+        if (/can i change my care plan/i.test(nextQuestion)) return /can i change .*plan/i.test(oldQuestion);
+        if (/what do the care plans include/i.test(nextQuestion)) return /care plans include/i.test(oldQuestion);
+        if (/what is a .*set of revisions/i.test(nextQuestion)) return /set of revisions/i.test(oldQuestion);
+        return oldQuestion === nextQuestion;
+      };
+      for (const item of template.items ?? []) {
+        const index = newItems.findIndex((current: any) => matches(current.question ?? "", item.question ?? ""));
+        if (index >= 0) newItems[index] = { ...newItems[index], ...item };
+        else newItems.push(item);
+      }
+      return { ...section, eyebrow: template.eyebrow, heading: template.heading, items: newItems };
+    }
+    if (section.type === "process") {
+      const steps = Array.isArray(section.steps) ? section.steps : [];
+      const domain = template.steps?.find((step: any) => step.title === "Domain");
+      const updatedSteps = steps.map((step: any) => step.title === "Domain" && domain ? { ...step, ...domain } : step);
+      return { ...section, steps: updatedSteps };
+    }
+    if (section.type === "features" && (slug === "home" || slug === "about")) {
+      const items = (section.items ?? []).map((item: any) => {
+        const target = template.items?.find((candidate: any) =>
+          /domain|approval before domain/i.test(item.title ?? "") && /domain|approval before domain/i.test(candidate.title ?? ""),
+        );
+        return target ? { ...item, ...target } : item;
+      });
+      return { ...section, items };
+    }
+    if (slug === "home" && section.type === "services") {
+      const items = (section.items ?? []).map((item: any) => {
+        const target = template.items?.find((candidate: any) => {
+          const title = String(item.title ?? "").toLowerCase();
+          return title.includes("website design") && String(candidate.title).toLowerCase().includes("website design")
+            || title.includes("hosting") && String(candidate.title).toLowerCase().includes("hosting")
+            || title.includes("domain") && String(candidate.title).toLowerCase().includes("domain");
+        });
+        return target ? { ...item, body: target.body } : item;
+      });
+      return { ...section, items };
+    }
+    return { ...template, id: section.id };
+  });
+
+  if (slug === "services" && !sections.some((section: any) => section.type === "pricing" && section.anchor === "print-design")) {
+    const extra = canonical.find((section) => section.type === "pricing" && section.anchor === "print-design");
+    if (extra) {
+      const primary = sections.findIndex((section: any) => section.type === "pricing" && section.anchor === "pricing");
+      sections.splice(primary >= 0 ? primary + 1 : sections.length, 0, { ...extra, id: randomUUID() });
+    }
+  }
+
+  let refreshed = { ...raw, sections };
+  if (slug === "home" && /\$500 one-time build/i.test(String(raw.seoDescription ?? ""))) {
+    refreshed = { ...refreshed, seoTitle: seeded.seoTitle, seoDescription: seeded.seoDescription };
+  } else if (slug === "services" && /Website design for \$500 one time/i.test(String(raw.seoDescription ?? ""))) {
+    refreshed = { ...refreshed, seoTitle: seeded.seoTitle, seoDescription: seeded.seoDescription };
+  } else if (/AidennsDesigns/.test(JSON.stringify(raw))) {
+    refreshed = { ...refreshed, seoTitle: refreshBrand(raw.seoTitle), seoDescription: refreshBrand(raw.seoDescription) };
+  }
+  return refreshBrand(refreshed);
+}
 
 const SCHEMA = `
 create table if not exists meta (key text primary key, value text not null);
@@ -147,6 +265,34 @@ async function migrate(r: Runner) {
       [JSON.stringify(SEED_SETTINGS)],
     );
     await r.query(`insert into meta (key, value) values ('seeded', '1') on conflict (key) do nothing`);
+  }
+
+  // Refresh the owner-approved digital-design pricing and public contact details in seeded site content.
+  // Only the affected sections are refreshed; unrelated page content and owner-added FAQ items stay intact.
+  const termsDone = await r.query("select 1 from meta where key = $1", [TERMS_MIGRATION]);
+  if (!termsDone.length) {
+    const defaults = new Map(SEED_PAGES.map((page) => [page.slug, page.content]));
+    const pages = await r.query("select id, slug, draft, published from pages");
+    for (const row of pages) {
+      const seeded = defaults.get(row.slug);
+      const draft = refreshSeededTerms(row.slug, row.draft, seeded);
+      const published = row.published ? refreshSeededTerms(row.slug, row.published, seeded) : null;
+      await r.query("update pages set draft = $1::jsonb, published = $2::jsonb where id = $3", [
+        JSON.stringify(draft), published ? JSON.stringify(published) : null, row.id,
+      ]);
+    }
+    const settingsRows = await r.query("select value from settings where key = 'site'");
+    if (settingsRows[0]) {
+      const site = refreshBrand(settingsRows[0].value);
+      site.contactEmail = SEED_SETTINGS.contactEmail;
+      site.contactPhone = SEED_SETTINGS.contactPhone;
+      site.footerBlurb = SEED_SETTINGS.footerBlurb;
+      if (/\$500 one-time build/i.test(String(site.defaultDescription ?? ""))) {
+        site.defaultDescription = SEED_SETTINGS.defaultDescription;
+      }
+      await r.query("update settings set value = $1::jsonb where key = 'site'", [JSON.stringify(site)]);
+    }
+    await r.query("insert into meta (key, value) values ($1, '1') on conflict (key) do nothing", [TERMS_MIGRATION]);
   }
 
   // Keep the requested starter portfolio available in fresh and already initialized databases.

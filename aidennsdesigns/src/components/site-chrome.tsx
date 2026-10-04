@@ -6,12 +6,11 @@ import { Button, Rich, SmartLink } from "./ui";
 
 function BrandMark() {
   return (
-    <svg className="mark" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" fill="none">
-      <rect width="34" height="34" rx="10" fill="#1B3A6B" />
-      <rect x="7.5" y="9.5" width="19" height="15" rx="3" stroke="#fff" strokeWidth="1.6" />
-      <path d="M7.5 14.5h19" stroke="#fff" strokeWidth="1.6" />
-      <circle cx="11.2" cy="12" r="1.1" fill="#C9A227" />
-      <path d="M13 21.5l2.2-4 2.2 4M13.8 20.2h2.8" stroke="#C9A227" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" transform="translate(1.8 0)" />
+    <svg className="mark" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true" fill="none">
+      <circle cx="18" cy="18" r="17.5" fill="#1B3A6B" stroke="rgba(255,255,255,.2)" />
+      <rect x="8" y="9" width="20" height="15" rx="2.5" stroke="#fff" strokeWidth="1.6" />
+      <path d="M8 13.5h20M14 28h8m-4-4v4" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="m21.2 15.5 4.6 4.6-6.8 2.2 2.2-6.8Z" fill="#C9A227" stroke="#0B1626" strokeWidth=".8" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -25,9 +24,9 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
       {banner}
       <header className="site-header">
         <div className="bar">
-          <Link href="/" className="brand" aria-label="AidennsDesigns home">
+          <Link href="/" className="brand" aria-label="Aidenn's Designs home">
             <BrandMark />
-            <span>Aidenns<b>Designs</b></span>
+            <span>Aidenn's Designs</span>
           </Link>
           <span className="pill-label">Website design studio</span>
           <nav aria-label="Main" className="nav-desktop">
@@ -51,7 +50,7 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
           </div>
           <div className="foot-cols">
             <div>
-              <p className="brand"><BrandMark /><span>Aidenns<b>Designs</b></span></p>
+              <p className="brand"><BrandMark /><span>Aidenn's Designs</span></p>
             </div>
             <nav aria-label="Footer">
               <p className="mono-label">Pages</p>
@@ -67,7 +66,7 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
               </ul>
             </div>
           </div>
-          <div className="legal">© {new Date().getFullYear()} AidennsDesigns. All rights reserved.</div>
+          <div className="legal">© {new Date().getFullYear()} <strong className="site-wordmark">Aidenn's Designs</strong>. All rights reserved.</div>
         </div>
       </footer>
     </>

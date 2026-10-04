@@ -10,7 +10,7 @@ const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variab
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "AidennsDesigns", template: "%s" },
+  title: { default: "Aidenn's Designs", template: "%s" },
   description: "Website design for small businesses.",
 };
 export const viewport: Viewport = { themeColor: "#0B1626" };

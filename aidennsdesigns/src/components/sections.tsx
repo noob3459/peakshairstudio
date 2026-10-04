@@ -4,6 +4,7 @@ import { ProjectCard, TestimonialCard } from "./cards";
 import Image from "next/image";
 import { InquiryForm } from "./inquiry-form";
 import { Button, Head, Paragraphs, Pic, Rich, SmartLink } from "./ui";
+import { PrintOrderShop } from "./print-order-shop";
 
 export function Sections({ sections }: { sections: Section[] }) {
   return <>{sections.map((s) => <One key={s.id} s={s} />)}</>;
@@ -34,6 +35,7 @@ async function One({ s }: { s: Section }) {
                 {s.secondary && <SmartLink href={s.secondary.href} className="btn btn-outline">{s.secondary.label}</SmartLink>}
               </div>
             )}
+            {home && <ul className="hero-offers" aria-label="Design services"><li>Websites</li><li>Branding</li><li>Business cards &amp; flyers</li></ul>}
           </div>
         </section>
       );
@@ -91,6 +93,9 @@ async function One({ s }: { s: Section }) {
       );
     }
     case "pricing":
+      if (s.anchor === "print-design") {
+        return <PrintOrderShop id={anchor} headingId={hid} eyebrow={s.eyebrow} heading={s.heading} intro={s.intro} footnote={s.footnote} />;
+      }
       return (
         <section id={anchor} className="sec sec-alt" aria-labelledby={hid}>
           <div className="wrap">
