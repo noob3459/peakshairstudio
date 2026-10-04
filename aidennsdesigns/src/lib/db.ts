@@ -10,6 +10,8 @@ type Runner = {
 };
 
 const TERMS_MIGRATION = "aidenns-designs-white-wordmark-v4-2026-10";
+const CONTACT_EMAIL_MIGRATION = "aidenns-designs-contact-email-v1-2026-10";
+const PROJECTS_PRESENTATION_MIGRATION = "aidenns-designs-project-links-motion-v2-2026-10";
 
 function refreshBrand(value: any, key = ""): any {
   if (typeof value === "string") {
@@ -295,16 +297,61 @@ async function migrate(r: Runner) {
     await r.query("insert into meta (key, value) values ($1, '1') on conflict (key) do nothing", [TERMS_MIGRATION]);
   }
 
-  // Keep the requested starter portfolio available in fresh and already initialized databases.
-  const { readFile } = await import("node:fs/promises");
-  const { join } = await import("node:path");
-  for (const p of SEED_PROJECTS) {
-    const image = await readFile(join(process.cwd(), "public", "projects", p.filename));
+  const contactEmailDone = await r.query("select 1 from meta where key = $1", [CONTACT_EMAIL_MIGRATION]);
+  if (!contactEmailDone.length) {
     await r.query(
-      `insert into media (id, data, mime, width, height, bytes, filename, alt)
-       values ($1,$2,'image/webp',$3,$4,$5,$6,$7) on conflict (id) do nothing`,
-      [p.cover.id, image, p.cover.w, p.cover.h, image.byteLength, p.filename, p.cover.alt],
+      "update settings set value = jsonb_set(value, '{contactEmail}', to_jsonb($1::text), true) where key = 'site'",
+      [SEED_SETTINGS.contactEmail],
     );
+    await r.query("insert into meta (key, value) values ($1, '1') on conflict (key) do nothing", [CONTACT_EMAIL_MIGRATION]);
+  }
+
+  const projectsPresentationDone = await r.query("select 1 from meta where key = $1", [PROJECTS_PRESENTATION_MIGRATION]);
+  if (!projectsPresentationDone.length) {
+    const defaults = new Map(SEED_PAGES.map((page) => [page.slug, page.content]));
+    const pages = await r.query("select id, slug, draft, published from pages");
+    for (const row of pages) {
+      const seeded = defaults.get(row.slug) as any;
+      if (!seeded || !Array.isArray(row.draft?.sections)) continue;
+      const refreshProjects = (content: any) => {
+        if (!content || !Array.isArray(content.sections)) return content;
+        const sections = content.sections.map((section: any) => {
+          if (row.slug === "work" && section.type === "hero") {
+            const hero = seeded.sections.find((candidate: any) => candidate.type === "hero");
+            return { ...hero, id: section.id };
+          }
+          if (row.slug === "home" && section.type === "hero") {
+            const hero = seeded.sections.find((candidate: any) => candidate.type === "hero");
+            return { ...section, secondary: hero.secondary };
+          }
+          if (section.type === "projects" && (row.slug === "home" || row.slug === "work")) {
+            const projects = seeded.sections.find((candidate: any) => candidate.type === "projects");
+            return { ...projects, ...section, eyebrow: projects.eyebrow, link: projects.link, id: section.id };
+          }
+          return section;
+        });
+        return row.slug === "work" ? { ...content, title: "Projects", seoTitle: "Projects — Aidenn's Designs", seoDescription: "Selected website design projects from Aidenn's Designs.", sections } : { ...content, sections };
+      };
+      const draft = refreshProjects(row.draft);
+      const published = row.published ? refreshProjects(row.published) : null;
+      await r.query("update pages set draft = $1::jsonb, published = $2::jsonb where id = $3", [JSON.stringify(draft), published ? JSON.stringify(published) : null, row.id]);
+    }
+    const settingsRows = await r.query("select value from settings where key = 'site'");
+    if (settingsRows[0]) {
+      const site = settingsRows[0].value;
+      for (const key of ["nav", "footerLinks"]) {
+        if (Array.isArray(site[key])) site[key] = site[key].map((link: any) => link.href === "/work" ? { ...link, label: "Projects" } : link);
+      }
+      site.contactEmail = SEED_SETTINGS.contactEmail;
+      await r.query("update settings set value = $1::jsonb where key = 'site'", [JSON.stringify(site)]);
+    }
+    await r.query("update projects set cover = null, gallery = '[]'::jsonb, summary = '', details = '' where slug in ('eddies-parts-marketing', 'tourmaline-photo-booths')");
+    await r.query("delete from media where id in ('d40e28a7-5c92-4b61-9f13-8a7e3d2c6b50', 'e51f39b8-6da3-4c72-a024-9b8f4e3d7c61')");
+    await r.query("insert into meta (key, value) values ($1, '1') on conflict (key) do nothing", [PROJECTS_PRESENTATION_MIGRATION]);
+  }
+
+  // Keep the requested starter portfolio links available in fresh and already initialized databases.
+  for (const p of SEED_PROJECTS) {
     await r.query(
       `insert into projects (id, slug, name, summary, details, services, kind, client_confirmed, cover, gallery, live_url, status, sort_order)
        values ($1,$2,$3,$4,$5,$6::jsonb,'client',true,$7::jsonb,'[]'::jsonb,$8,'published',$9)

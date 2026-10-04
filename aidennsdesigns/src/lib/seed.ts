@@ -72,9 +72,9 @@ export const SEED_PAGES: { slug: string; content: PageContent }[] = [
           variant: "home", eyebrow: "Built with care",
           headline: "Make your business *look the part.*",
           body: "Professional websites and thoughtful digital design that help small businesses make a confident first impression.",
-          primary: REQUEST, secondary: L("View My Work", "/work"), image: null, anchor: "",
+          primary: REQUEST, secondary: L("View Projects", "/work"), image: null, anchor: "",
         }),
-        s("projects", { eyebrow: "Selected work", heading: "Recent projects", intro: "", limit: "6", link: L("See all work", "/work"), anchor: "" }),
+        s("projects", { eyebrow: "Projects", heading: "Recent projects", intro: "", limit: "6", link: L("See all projects", "/work"), anchor: "" }),
         s("services", {
           eyebrow: "Services", heading: "Design, build, and keep it running", intro: "",
           items: [
@@ -117,8 +117,8 @@ export const SEED_PAGES: { slug: string; content: PageContent }[] = [
   },
   {
     slug: "work",
-    content: page("Work", "Work — Aidenn's Designs", "Website design projects from Aidenn's Designs. Concept projects are labeled as concepts.", [
-      s("hero", { variant: "page", eyebrow: "Work", headline: "Selected *projects*", body: "Client projects and clearly labeled concept projects.", primary: null, secondary: null, image: null, anchor: "" }),
+    content: page("Projects", "Projects — Aidenn's Designs", "Selected website design projects from Aidenn's Designs.", [
+      s("hero", { variant: "page", eyebrow: "Projects", headline: "Selected *projects*", body: "A few businesses with websites designed by Aidenn's Designs.", primary: null, secondary: null, image: null, anchor: "" }),
       s("projects", { eyebrow: "", heading: "All projects", intro: "", limit: "all", link: null, anchor: "" }),
       s("testimonials", { eyebrow: "Testimonials", heading: "Kind words", limit: "3", anchor: "" }),
       s("cta", { heading: "Want a site like these?", body: "Tell us about your business and what you need.", primary: REQUEST, secondary: null, anchor: "" }),
@@ -221,12 +221,12 @@ export const SEED_PAGES: { slug: string; content: PageContent }[] = [
 ];
 
 export const SEED_SETTINGS: SiteSettings = {
-  nav: [L("Work", "/work"), L("Services & Pricing", "/services"), L("Process", "/process"), L("About", "/about"), L("FAQ", "/faq")],
+  nav: [L("Projects", "/work"), L("Services & Pricing", "/services"), L("Process", "/process"), L("About", "/about"), L("FAQ", "/faq")],
   headerCta: REQUEST,
   footerHeading: "Ready when *you are.*",
   footerBlurb: "Custom websites and digital design for small businesses.",
-  footerLinks: [L("Work", "/work"), L("Services & Pricing", "/services"), L("Process", "/process"), L("About", "/about"), L("FAQ", "/faq"), L("Request a Website", "/contact"), L("Aidenn’s Tutoring", "https://aidennstutoring.com")],
-  contactEmail: "aiden@aidendesigns.com",
+  footerLinks: [L("Projects", "/work"), L("Services & Pricing", "/services"), L("Process", "/process"), L("About", "/about"), L("FAQ", "/faq"), L("Request a Website", "/contact"), L("Aidenn’s Tutoring", "https://aidennstutoring.com")],
+  contactEmail: "aidenn@aidennsdesigns.com",
   contactPhone: "949-795-7036",
   social: [],
   tutoringUrl: "https://aidennstutoring.com",
@@ -241,22 +241,20 @@ export const SEED_PROJECTS = [
     id: "a1d3e8f2-1c6b-4a90-8f31-7d2e5b9c4a10",
     slug: "eddies-parts-marketing",
     name: "Eddie’s Parts Marketing",
-    summary: "A Southern California automotive parts marketing site focused on wholesale OEM parts and dealership relationships.",
-    details: "The live website introduces Eddie’s Parts Marketing and its wholesale OEM parts services, with a clear path for automotive businesses to learn more and get in touch.",
+    summary: "",
+    details: "",
     services: ["Website design"],
     liveUrl: "https://eddiespartsmarketing.com/",
-    cover: { id: "d40e28a7-5c92-4b61-9f13-8a7e3d2c6b50", alt: "Automotive photo featured on the Eddie’s Parts Marketing website", w: 1600, h: 2000 },
-    filename: "eddies-parts-marketing.webp",
+    cover: null,
   },
   {
     id: "b2e4f9a3-2d7c-4b01-9a42-8e3f6c0d5b21",
     slug: "tourmaline-photo-booths",
     name: "Tourmaline Photo Booths",
-    summary: "A Southern California photo booth service showcasing its handcrafted wood booth and event experience.",
-    details: "The live website presents Tourmaline’s photo booth options and event services, helping visitors explore the experience and make an inquiry.",
+    summary: "",
+    details: "",
     services: ["Website design"],
     liveUrl: "https://tourmalinephotobooths.com/",
-    cover: { id: "e51f39b8-6da3-4c72-a024-9b8f4e3d7c61", alt: "Tourmaline Photo Booths’ signature handcrafted wood photo booth", w: 1200, h: 1798 },
-    filename: "tourmaline-photo-booths.webp",
+    cover: null,
   },
 ];

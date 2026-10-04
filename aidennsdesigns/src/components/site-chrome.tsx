@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { getSettings } from "@/lib/data";
 import { MobileNav } from "./mobile-nav";
 import { Button, Rich, SmartLink } from "./ui";
+import { MotionProgress } from "./motion-primitives";
 
 function BrandMark() {
   return (
@@ -20,6 +21,7 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
   const hasContact = Boolean(s.contactEmail || s.contactPhone || s.social.length);
   return (
     <>
+      <MotionProgress />
       <a href="#main" className="skip">Skip to content</a>
       {banner}
       <header className="site-header">

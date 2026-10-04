@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Section } from "@/lib/content";
 import { getPublishedProjects, getPublishedTestimonials, getSettings } from "@/lib/data";
 import { ProjectCard, TestimonialCard } from "./cards";
@@ -5,9 +6,10 @@ import Image from "next/image";
 import { InquiryForm } from "./inquiry-form";
 import { Button, Head, Paragraphs, Pic, Rich, SmartLink } from "./ui";
 import { PrintOrderShop } from "./print-order-shop";
+import { MotionHeroLayer, MotionItem, MotionReveal, TimelineNumber } from "./motion-primitives";
 
 export function Sections({ sections }: { sections: Section[] }) {
-  return <>{sections.map((s) => <One key={s.id} s={s} />)}</>;
+  return <>{sections.map((s) => <MotionReveal key={s.id} className="motion-section"><One s={s} /></MotionReveal>)}</>;
 }
 
 async function One({ s }: { s: Section }) {
@@ -20,9 +22,11 @@ async function One({ s }: { s: Section }) {
         <section id={anchor} className={`hero on-dark${home ? " hero-home" : ""}`} aria-labelledby={hid}>
           {home && (
             <div className="hero-bg" aria-hidden="true">
-              {s.image
-                ? <Image src={`/media/${s.image.id}`} alt="" fill priority sizes="100vw" />
-                : <Image src="/hero-mockups.webp" alt="" fill priority sizes="100vw" />}
+              <MotionHeroLayer>
+                {s.image
+                  ? <Image src={`/media/${s.image.id}`} alt="" fill priority sizes="100vw" />
+                  : <Image src="/hero-mockups.webp" alt="" fill priority sizes="100vw" />}
+              </MotionHeroLayer>
             </div>
           )}
           <div className="wrap hero-copy">
@@ -48,11 +52,11 @@ async function One({ s }: { s: Section }) {
             <Head id={hid} eyebrow={s.eyebrow} heading={s.heading} intro={s.intro} />
             <ul className={`grid ${s.items.length === 4 ? "g4" : "g3"}`}>
               {s.items.map((it: any, i: number) => (
-                <li key={i} className="card pad">
+                <MotionItem key={i} index={i} className="card pad">
                   <span className="num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
                   <h3>{it.title}</h3>
                   <p>{it.body}</p>
-                </li>
+                </MotionItem>
               ))}
             </ul>
           </div>
@@ -63,15 +67,17 @@ async function One({ s }: { s: Section }) {
         <section id={anchor} className="sec sec-alt" aria-labelledby={hid}>
           <div className="wrap">
             <Head id={hid} eyebrow={s.eyebrow} heading={s.heading} intro={s.intro} />
-            <ol className="steps">
-              {s.steps.map((it: any, i: number) => (
-                <li key={i}>
-                  <span className="step-n" aria-hidden="true">{i + 1}</span>
-                  <h3>{it.title}</h3>
-                  <p>{it.body}</p>
-                </li>
-              ))}
-            </ol>
+            <div className="steps-scroll">
+              <ol className="steps" style={{ "--step-count": s.steps.length } as CSSProperties}>
+                {s.steps.map((it: any, i: number) => (
+                  <MotionItem key={i} index={i} className="step-item" timeline>
+                    <TimelineNumber number={i + 1} index={i} count={s.steps.length} />
+                    <h3>{it.title}</h3>
+                    <p>{it.body}</p>
+                  </MotionItem>
+                ))}
+              </ol>
+            </div>
             {s.link && <p className="more"><SmartLink href={s.link.href} className="textlink">{s.link.label} <span aria-hidden="true">→</span></SmartLink></p>}
           </div>
         </section>
@@ -83,7 +89,7 @@ async function One({ s }: { s: Section }) {
           <div className="wrap">
             <Head id={hid} eyebrow={s.eyebrow} heading={s.heading} intro={s.intro} />
             {projects.length ? (
-              <ul className="grid g3">{projects.map((p) => <li key={p.id}><ProjectCard p={p} href={`/work/${p.slug}`} /></li>)}</ul>
+              <ul className="grid g3">{projects.map((p, i) => <MotionItem key={p.id} index={i}><ProjectCard p={p} href={`/work/${p.slug}`} /></MotionItem>)}</ul>
             ) : (
               <div className="empty"><p>Portfolio projects will appear here as they are published.</p></div>
             )}
@@ -102,7 +108,7 @@ async function One({ s }: { s: Section }) {
             <Head id={hid} eyebrow={s.eyebrow} heading={s.heading} intro={s.intro} />
             <ul className="grid g4 pricing">
               {s.tiers.map((t: any, i: number) => (
-                <li key={i} className="card pad tier">
+                <MotionItem key={i} index={i} className="card pad tier">
                   <h3>{t.name}</h3>
                   <p className="price"><strong>{t.price}</strong>{t.cadence && <span>{t.cadence}</span>}</p>
                   {t.description && <p>{t.description}</p>}
@@ -111,13 +117,13 @@ async function One({ s }: { s: Section }) {
                       {t.features.split("\n").filter(Boolean).map((f: string, j: number) => <li key={j}>{f}</li>)}
                     </ul>
                   )}
-                </li>
+                </MotionItem>
               ))}
             </ul>
             {s.notes.length > 0 && (
               <div className="notes">
                 {s.notes.map((n: any, i: number) => (
-                  <div key={i} className="note"><h3>{n.title}</h3><Paragraphs text={n.body} /></div>
+                  <MotionReveal key={i} delay={i * 0.1}><div className="note"><h3>{n.title}</h3><Paragraphs text={n.body} /></div></MotionReveal>
                 ))}
               </div>
             )}
@@ -150,7 +156,7 @@ async function One({ s }: { s: Section }) {
         <section id={anchor} className="sec sec-alt" aria-labelledby={hid}>
           <div className="wrap">
             <Head id={hid} eyebrow={s.eyebrow} heading={s.heading} />
-            <ul className="grid g3">{items.map((t) => <li key={t.id}><TestimonialCard t={t} /></li>)}</ul>
+            <ul className="grid g3">{items.map((t, i) => <MotionItem key={t.id} index={i}><TestimonialCard t={t} /></MotionItem>)}</ul>
           </div>
         </section>
       );

@@ -1,11 +1,23 @@
 import Link from "next/link";
 import { Pic, SmartLink } from "./ui";
+import { MotionCallToAction } from "./motion-primitives";
 
-type ProjectLike = { name: string; summary: string; services: string[]; kind: "client" | "concept"; clientConfirmed: boolean; cover: { id: string; alt: string; w: number; h: number } | null; liveUrl?: string };
+type ProjectLike = { slug: string; name: string; summary: string; services: string[]; kind: "client" | "concept"; clientConfirmed: boolean; cover: { id: string; alt: string; w: number; h: number } | null; liveUrl?: string };
 type TestimonialLike = { quote: string; person: string; business: string; role: string; image: { id: string; alt: string; w: number; h: number } | null };
 
 export function ProjectCard({ p, href }: { p: ProjectLike; href?: string }) {
   const client = p.kind === "client" && p.clientConfirmed;
+  if (["eddies-parts-marketing", "tourmaline-photo-booths"].includes(p.slug) && p.liveUrl) {
+    return (
+      <article className="card project project-link-card">
+        <div className="card-body">
+          <span className="mono-label">Client website</span>
+          <h3><SmartLink href={p.liveUrl}>{p.name} <span aria-hidden="true">↗</span></SmartLink></h3>
+          <MotionCallToAction />
+        </div>
+      </article>
+    );
+  }
   return (
     <article className="card project">
       <div className="shot">

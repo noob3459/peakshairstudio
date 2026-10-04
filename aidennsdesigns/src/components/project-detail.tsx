@@ -4,11 +4,23 @@ import { Button, Paragraphs, Pic } from "./ui";
 
 export function ProjectDetail({ p }: { p: Project }) {
   const client = p.kind === "client" && p.clientConfirmed;
+  if (["eddies-parts-marketing", "tourmaline-photo-booths"].includes(p.slug)) {
+    return (
+      <section className="hero on-dark project-link-detail" aria-labelledby="project-h">
+        <div className="wrap hero-copy">
+          <p className="crumb"><Link href="/work">← All projects</Link></p>
+          <span className="badge badge-inline badge-client">Client website</span>
+          <h1 id="project-h">{p.name}</h1>
+          {p.liveUrl && <div className="actions"><Button link={{ label: "Visit live website", href: p.liveUrl }} variant="primary" arrow /></div>}
+        </div>
+      </section>
+    );
+  }
   return (
     <>
       <section className="hero on-dark" aria-labelledby="project-h">
         <div className="wrap hero-copy">
-          <p className="crumb"><Link href="/work">← All work</Link></p>
+          <p className="crumb"><Link href="/work">← All projects</Link></p>
           <span className={`badge badge-inline ${client ? "badge-client" : "badge-concept"}`}>{client ? "Client project" : "Concept"}</span>
           <h1 id="project-h">{p.name}</h1>
           {p.summary && <p className="lede">{p.summary}</p>}
