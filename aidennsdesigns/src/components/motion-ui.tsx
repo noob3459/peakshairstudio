@@ -1,56 +1,69 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Paragraphs } from "./ui";
+import { gsap, prefersReducedMotion, useGSAP } from "@/lib/gsap";
 
 export function AnimatedFAQItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
-  const reduce = useReducedMotion();
   const answerId = useId();
+  const root = useRef<HTMLDivElement>(null);
+  const answerRef = useRef<HTMLDivElement>(null);
+  const plusRef = useRef<HTMLSpanElement>(null);
+
+  useGSAP(() => {
+    const element = root.current;
+    if (!element || prefersReducedMotion()) return;
+    gsap.fromTo(element, { autoAlpha: 0, y: 12 }, {
+      autoAlpha: 1, y: 0, duration: 0.52, ease: "power3.out",
+      clearProps: "transform,opacity,visibility",
+      scrollTrigger: { trigger: element, start: "top 94%", once: true },
+    });
+  }, { scope: root });
+
+  useGSAP(() => {
+    const panel = answerRef.current;
+    const plus = plusRef.current;
+    if (!panel || !plus) return;
+    gsap.killTweensOf([panel, plus]);
+    if (prefersReducedMotion()) {
+      gsap.set(panel, { height: open ? "auto" : 0, autoAlpha: open ? 1 : 0, y: 0 });
+      gsap.set(plus, { rotation: open ? 45 : 0, color: open ? "#c9a227" : "#1b3a6b" });
+      return;
+    }
+    if (open) {
+      gsap.fromTo(panel, { height: 0, autoAlpha: 0, y: -5 }, {
+        height: "auto", autoAlpha: 1, y: 0, duration: 0.34, ease: "power3.out",
+      });
+    } else {
+      gsap.to(panel, { height: 0, autoAlpha: 0, y: -4, duration: 0.25, ease: "power2.inOut" });
+    }
+    gsap.to(plus, { rotation: open ? 45 : 0, color: open ? "#c9a227" : "#1b3a6b", duration: 0.24, ease: "power2.out" });
+  }, { scope: root, dependencies: [open] });
 
   return (
-    <motion.div
-      className="faq-item"
-      layout
-      initial={reduce ? false : { opacity: 0, y: 12 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ type: "spring", stiffness: 360, damping: 34, duration: 0.55 }}
-    >
+    <div ref={root} className="faq-item">
       <button
         className="faq-trigger"
         type="button"
         aria-expanded={open}
-        aria-controls={open ? answerId : undefined}
+        aria-controls={answerId}
         id={`${answerId}-trigger`}
         onClick={() => setOpen((value) => !value)}
       >
         <span>{question}</span>
-        <motion.span
-          className="faq-plus"
-          aria-hidden="true"
-          animate={{ rotate: open ? 45 : 0, color: open ? "var(--gold)" : "var(--blue)" }}
-          transition={{ type: "spring", stiffness: 320, damping: 20 }}
-        >+</motion.span>
+        <span ref={plusRef} className="faq-plus" aria-hidden="true">+</span>
       </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            id={answerId}
-            className="faq-answer-motion"
-            role="region"
-            aria-labelledby={`${answerId}-trigger`}
-            key="answer"
-            initial={reduce ? { opacity: 0 } : { opacity: 0, height: 0, y: -5 }}
-            animate={{ opacity: 1, height: "auto", y: 0 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0, y: -4 }}
-            transition={{ duration: reduce ? 0.16 : 0.34, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="answer"><Paragraphs text={answer} /></div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      <div
+        ref={answerRef}
+        id={answerId}
+        className="faq-answer-motion"
+        role="region"
+        aria-labelledby={`${answerId}-trigger`}
+        aria-hidden={!open}
+      >
+        <div className="answer"><Paragraphs text={answer} /></div>
+      </div>
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
-import { AnimatePresence, motion, useAnimationControls, useInView, useReducedMotion } from "motion/react";
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { submitInquiry, type InquiryState } from "@/app/inquiry-action";
+import { gsap, prefersReducedMotion, useGSAP } from "@/lib/gsap";
 
 type Product = "card-single" | "card-double" | "flyer";
 type Line = { product: Product; quantity: number; size?: string };
@@ -14,22 +14,18 @@ const catalog: Record<Product, { name: string; price: number; image: string; alt
 };
 const flyerSizes = ["Landscape 8.5 × 11 in", "Portrait 8.5 × 11 in", "Half-sheet 5.5 × 8.5 in"];
 
-function AnimatedProduct({ children, index, reduce }: { children: ReactNode; index: number; reduce: boolean | null }) {
+function AnimatedProduct({ children, index }: { children: ReactNode; index: number }) {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.18 });
-  const controls = useAnimationControls();
-  const [ready, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
-  useEffect(() => {
-    const visible = { opacity: 1, y: 0, scale: 1 };
-    if (reduce) { controls.set(visible); return; }
-    if (!ready) return;
-    if (inView) {
-      controls.set({ opacity: 0, y: 22, scale: 0.985 });
-      void controls.start({ ...visible, transition: { duration: 0.72, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] } });
-    } else controls.set({ opacity: 0, y: 22, scale: 0.985 });
-  }, [controls, inView, index, ready, reduce]);
-  return <motion.article ref={ref} className="design-product" initial={false} animate={controls} whileHover={reduce ? undefined : { y: -5, transition: { type: "spring", stiffness: 300, damping: 25 } }} layout>{children}</motion.article>;
+  useGSAP(() => {
+    const element = ref.current;
+    if (!element || prefersReducedMotion()) return;
+    gsap.fromTo(element, { autoAlpha: 0, y: 20, scale: 0.99 }, {
+      autoAlpha: 1, y: 0, scale: 1, duration: 0.64, delay: index * 0.08,
+      ease: "power3.out", clearProps: "transform,opacity,visibility",
+      scrollTrigger: { trigger: element, start: "top 92%", once: true },
+    });
+  }, { scope: ref });
+  return <article ref={ref} className="design-product">{children}</article>;
 }
 
 export function PrintOrderShop({ id, headingId, eyebrow, heading, intro, footnote }: { id?: string; headingId: string; eyebrow?: string; heading: string; intro?: string; footnote?: string }) {
@@ -37,8 +33,24 @@ export function PrintOrderShop({ id, headingId, eyebrow, heading, intro, footnot
   const [loadedAt, setLoadedAt] = useState("");
   const [cart, setCart] = useState<Line[]>([]);
   const [size, setSize] = useState(flyerSizes[0]);
-  const reduce = useReducedMotion();
+  const cartRef = useRef<HTMLDivElement>(null);
   useEffect(() => setLoadedAt(String(Date.now())), []);
+
+  useGSAP(() => {
+    const cartElement = cartRef.current;
+    if (!cartElement || prefersReducedMotion()) return;
+    const content = cartElement.querySelector<HTMLElement>(cart.length ? ".design-cart-lines" : ".form-note");
+    if (!content) return;
+    gsap.fromTo(content, { autoAlpha: 0, y: 8 }, {
+      autoAlpha: 1, y: 0, duration: 0.25, ease: "power2.out",
+      clearProps: "transform,opacity,visibility",
+    });
+    const lines = cartElement.querySelectorAll<HTMLElement>(".design-cart-lines > li");
+    if (lines.length) gsap.fromTo(lines, { autoAlpha: 0, x: 12, scale: 0.99 }, {
+      autoAlpha: 1, x: 0, scale: 1, duration: 0.28, stagger: 0.045,
+      ease: "power2.out", clearProps: "transform,opacity,visibility",
+    });
+  }, { scope: cartRef, dependencies: [cart], revertOnUpdate: true });
 
   const add = (product: Product) => setCart((current) => {
     if (product !== "flyer" && current.some((line) => line.product === product)) return current;
@@ -71,7 +83,7 @@ export function PrintOrderShop({ id, headingId, eyebrow, heading, intro, footnot
           {(Object.keys(catalog) as Product[]).map((product) => {
             const item = catalog[product];
             const inCart = product !== "flyer" && cart.some((line) => line.product === product);
-            return <AnimatedProduct key={product} index={(Object.keys(catalog) as Product[]).indexOf(product)} reduce={reduce}>
+            return <AnimatedProduct key={product} index={(Object.keys(catalog) as Product[]).indexOf(product)}>
               <Image src={item.image} alt={item.alt} width={1440} height={1000} sizes="(max-width: 760px) 100vw, 33vw" />
               <div className="design-product-copy">
                 <div><h3>{item.name}</h3><p className="price"><strong>${item.price}</strong><span>per design</span></p></div>
@@ -84,16 +96,14 @@ export function PrintOrderShop({ id, headingId, eyebrow, heading, intro, footnot
         </div>
 
         <div className="design-checkout" id="design-request">
-          <motion.div className="design-cart" layout transition={{ type: "spring", stiffness: 320, damping: 30 }}>
+          <div ref={cartRef} className="design-cart">
             <div><p className="eyebrow">Request summary</p><h3>Your design request</h3></div>
-            <AnimatePresence mode="wait" initial={false}>
-              {!cart.length ? <motion.p key="empty" className="form-note" initial={reduce ? { opacity: 0 } : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.22 }}>Add a design above to begin. Card options are priced per design; there are no print quantities.</motion.p> : <motion.ul key="items" className="design-cart-lines" layout initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <AnimatePresence initial={false}>{cart.map((line, index) => <motion.li layout key={`${line.product}-${line.size ?? ""}`} initial={reduce ? { opacity: 0 } : { opacity: 0, x: 14, scale: 0.98 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: 12, scale: 0.98 }} transition={{ type: "spring", stiffness: 360, damping: 30 }}><span><strong>{catalog[line.product].name}</strong>{line.size && <small>{line.size}</small>}{line.product === "flyer" && <small>{line.quantity} digital design{line.quantity === 1 ? "" : "s"}</small>}</span><span>${catalog[line.product].price * line.quantity}</span><button type="button" aria-label={`Remove ${catalog[line.product].name}`} onClick={() => remove(index)}>Remove</button></motion.li>)}</AnimatePresence>
-              </motion.ul>}
-            </AnimatePresence>
+            {!cart.length ? <p className="form-note">Add a design above to begin. Card options are priced per design; there are no print quantities.</p> : <ul className="design-cart-lines">
+              {cart.map((line, index) => <li key={`${line.product}-${line.size ?? ""}`}><span><strong>{catalog[line.product].name}</strong>{line.size && <small>{line.size}</small>}{line.product === "flyer" && <small>{line.quantity} digital design{line.quantity === 1 ? "" : "s"}</small>}</span><span>${catalog[line.product].price * line.quantity}</span><button type="button" aria-label={`Remove ${catalog[line.product].name}`} onClick={() => remove(index)}>Remove</button></li>)}
+            </ul>}
             <p className="design-total"><span>Estimated design total</span><strong>${total}</strong></p>
             <p className="form-note">This is a request only. No payment is collected here. Work begins after Aidenn’s Designs contacts you to confirm the details.</p>
-          </motion.div>
+          </div>
           <form action={action} className="form design-request-form">
             {state.status === "error" && state.message && <p className="form-alert" role="alert">{state.message}</p>}
             {error("order")}
