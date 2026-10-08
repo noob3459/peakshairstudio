@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Aidenn’s Designs</title>
+  <desc id="desc">Bold white AD monogram inside a deep blue circle.</desc>
+  <circle cx="256" cy="256" r="256" fill="#102653"/>
+  <text x="256" y="337" text-anchor="middle" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="236" font-weight="700" letter-spacing="-18">AD</text>
+</svg>

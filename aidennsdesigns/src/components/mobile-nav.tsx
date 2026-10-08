@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { SmartLink } from "./ui";
 import type { Link } from "@/lib/content";
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/brand";
 
 export function MobileNav({ nav }: { nav: Link[] }) {
   const [open, setOpen] = useState(false);
@@ -38,6 +39,7 @@ export function MobileNav({ nav }: { nav: Link[] }) {
           transition={{ duration: reduce ? 0.14 : 0.24, ease: [0.22, 1, 0.36, 1] }}
         >
           <ul>{nav.map((l, index) => <motion.li key={l.href + l.label} initial={reduce ? false : { opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2, delay: reduce ? 0 : index * 0.035 }}><SmartLink href={l.href}>{l.label}</SmartLink></motion.li>)}</ul>
+          <a className="mobile-instagram" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Instagram <span>@{INSTAGRAM_HANDLE}</span><span aria-hidden="true">↗</span></a>
         </motion.nav>}
       </AnimatePresence>
     </>

@@ -1,17 +1,22 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { getSettings } from "@/lib/data";
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/brand";
 import { MobileNav } from "./mobile-nav";
 import { Button, Rich, SmartLink } from "./ui";
 import { MotionFooter, MotionHeader, MotionProgress, MotionReveal } from "./motion-primitives";
 
 function BrandMark() {
+  return <Image className="mark" src="/aidenns-designs-mark.svg" width={42} height={42} alt="" aria-hidden="true" />;
+}
+
+function InstagramGlyph({ className }: { className?: string }) {
   return (
-    <svg className="mark" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true" fill="none">
-      <circle cx="18" cy="18" r="17.5" fill="#1B3A6B" stroke="rgba(255,255,255,.2)" />
-      <rect x="8" y="9" width="20" height="15" rx="2.5" stroke="#fff" strokeWidth="1.6" />
-      <path d="M8 13.5h20M14 28h8m-4-4v4" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="m21.2 15.5 4.6 4.6-6.8 2.2 2.2-6.8Z" fill="#C9A227" stroke="#0B1626" strokeWidth=".8" strokeLinejoin="round" />
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3.25" y="3.25" width="17.5" height="17.5" rx="5.2" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="4.1" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="17.65" cy="6.55" r="1.1" fill="currentColor" />
     </svg>
   );
 }
@@ -35,6 +40,10 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
             <ul>{s.nav.map((l) => <li key={l.href + l.label}><SmartLink href={l.href}>{l.label}</SmartLink></li>)}</ul>
           </nav>
           <div className="bar-end">
+            <a className="instagram-header" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={`Instagram @${INSTAGRAM_HANDLE}`}>
+              <InstagramGlyph />
+              <span className="sr-only">Instagram</span>
+            </a>
             <Button link={s.headerCta} variant="gold" arrow />
             <MobileNav nav={s.nav} />
           </div>
@@ -52,7 +61,7 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
           </MotionReveal>
           <div className="foot-cols">
             <MotionReveal>
-              <p className="brand"><BrandMark /><span>Aidenn's Designs</span></p>
+              <Link href="/" className="brand footer-brand" aria-label="Aidenn's Designs home"><BrandMark /><span>Aidenn&apos;s Designs</span></Link>
             </MotionReveal>
             <MotionReveal delay={0.08}>
               <nav aria-label="Footer">
@@ -67,6 +76,7 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
                 {s.contactEmail && <li><SmartLink href={`mailto:${s.contactEmail}`}>{s.contactEmail}</SmartLink></li>}
                 {s.contactPhone && <li><SmartLink href={`tel:${s.contactPhone.replace(/[^+\d]/g, "")}`}>{s.contactPhone}</SmartLink></li>}
                 {s.social.map((l) => <li key={l.href}><SmartLink href={l.href}>{l.label}</SmartLink></li>)}
+                {!s.social.some((l) => /instagram\.com/i.test(l.href)) && <li><a className="instagram-footer" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"><InstagramGlyph />Instagram <span>@{INSTAGRAM_HANDLE}</span></a></li>}
                 {!hasContact && <li><SmartLink href={s.headerCta.href}>Use the request form</SmartLink></li>}
               </ul>
               </div>

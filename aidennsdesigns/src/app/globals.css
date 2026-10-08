@@ -38,9 +38,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 /* header: floating capsule */
 .site-header { position: fixed; top: 16px; left: 0; right: 0; z-index: 50; pointer-events: none; }
 .bar { pointer-events: auto; position: relative; display: flex; align-items: center; gap: 18px; width: min(1080px, 100% - 32px); margin-inline: auto; padding: 9px 12px 9px 18px; background: rgba(11, 22, 38, .78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, .12); border-radius: 999px; box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .45); }
-.brand { display: inline-flex; align-items: center; gap: 10px; font: 700 1.1rem/1 var(--display); color: #fff; text-decoration: none; letter-spacing: -.02em; margin: 0; }
+.brand { display: inline-flex; align-items: center; gap: 11px; font: 700 1.08rem/1 var(--display); color: #fff; text-decoration: none; letter-spacing: -.035em; margin: 0; }
 .brand, .brand span, .brand b { color: #fff !important; }
-.mark { flex: none; border-radius: 50%; }
+.mark { flex: none; width: 42px; height: 42px; border-radius: 50%; }
+.instagram-header { display: grid; place-items: center; width: 40px; height: 40px; flex: none; color: rgba(255,255,255,.9); border: 1px solid rgba(255,255,255,.16); border-radius: 50%; text-decoration: none; transition: color .2s ease, border-color .2s ease, background-color .2s ease, transform .25s cubic-bezier(.22,1,.36,1); }
+.instagram-header:hover, .instagram-header:focus-visible { color: #fff; border-color: rgba(255,255,255,.42); background: rgba(255,255,255,.08); transform: translateY(-1px); }
+.instagram-header svg { width: 19px; height: 19px; }
 .pill-label { font: 500 .66rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(201, 162, 39, .55); border-radius: 999px; padding: 6px 10px; background: rgba(201, 162, 39, .08); white-space: nowrap; }
 .nav-desktop { margin-left: auto; }
 .nav-desktop ul { display: flex; gap: 2px; }
@@ -57,6 +60,13 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .mobile-menu a:hover { background: rgba(255, 255, 255, .08); }
 .mobile-menu a { transition: color .22s ease, background-color .22s ease, padding-left .28s cubic-bezier(.22,1,.36,1); }
 .mobile-menu a:hover { padding-left: 22px; color: var(--gold); }
+.mobile-menu .mobile-instagram { display: flex; align-items: center; gap: 8px; margin-top: 5px; border-top: 1px solid rgba(255,255,255,.12); color: #fff; }
+.mobile-instagram span:first-of-type { color: rgba(255,255,255,.58); font-size: .86em; font-weight: 500; }
+.mobile-instagram span:last-child { margin-left: auto; color: var(--gold); }
+.instagram-footer { display: inline-flex; align-items: center; gap: 8px; }
+.instagram-footer svg { width: 17px; height: 17px; }
+.instagram-footer span { color: rgba(255,255,255,.56); font-size: .9em; }
+.footer-brand { width: fit-content; }
 .bar :focus-visible, .mobile-menu :focus-visible { outline-color: #fff; }
 @media (max-width: 1060px) { .pill-label { display: none; } }
 @media (max-width: 860px) {
@@ -68,6 +78,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .bar { gap: 8px; padding: 8px 8px 8px 10px; }
   .brand { gap: 7px; font-size: .86rem; white-space: nowrap; }
   .mark { width: 32px; height: 32px; }
+  .instagram-header { width: 36px; height: 36px; }
   .bar-end { gap: 5px; }
   .bar-end .btn { padding: 9px 10px; font-size: .76rem; }
   .menu-btn { width: 38px; height: 38px; }
@@ -449,6 +460,9 @@ main > .sec:first-child { padding-top: 136px; }
 @media (max-width: 360px) {
   .brand { gap: 4px; font-size: .7rem; }
   .mark { width: 28px; height: 28px; }
+  .instagram-header { width: 32px; height: 32px; }
+  .instagram-header svg { width: 17px; height: 17px; }
+  .bar-end { gap: 4px; }
   .bar-end .btn { min-height: 38px; padding: 7px 6px; font-size: .66rem; }
   .menu-btn { width: 38px; height: 38px; }
   .bar { gap: 4px; padding-inline: 8px; }
