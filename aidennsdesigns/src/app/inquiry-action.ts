@@ -110,6 +110,7 @@ async function notify(id: string, v: Record<string, string>) {
   if (!key || !from) return;
 
   const ownerEmail = "aidennq29@gmail.com";
+  const requestType = v.features.startsWith("DIGITAL DESIGN REQUEST") ? "digital design request" : "website inquiry";
   const customerEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.contact) ? v.contact.trim() : undefined;
   const details: Array<[string, string]> = [
     ["Name", v.name],
@@ -143,7 +144,7 @@ async function notify(id: string, v: Record<string, string>) {
         </td></tr>
         <tr><td style="padding:32px">
           <div style="margin-bottom:9px;color:#1b3a6b;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">${escapeHtml(title)}</div>
-          <h1 style="margin:0 0 12px;color:#14171f;font-size:28px;line-height:1.2;letter-spacing:-.7px">${escapeHtml(title === "Inquiry received" ? `Thank you, ${v.name}.` : "A new website inquiry")}</h1>
+          <h1 style="margin:0 0 12px;color:#14171f;font-size:28px;line-height:1.2;letter-spacing:-.7px">${escapeHtml(title === "Request received" ? `Thank you, ${v.name}.` : `A new ${requestType}`)}</h1>
           <p style="margin:0 0 24px;color:#626878;font-size:15px;line-height:1.7">${escapeHtml(intro)}</p>
           ${body}
         </td></tr>
@@ -157,16 +158,16 @@ async function notify(id: string, v: Record<string, string>) {
 </body></html>`;
   const detailsTable = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e3e1da;border-top:3px solid #c9a227;border-radius:12px;border-spacing:0;overflow:hidden">${htmlDetails}</table>`;
   const ownerHtml = emailFrame(
-    "New inquiry",
-    `${v.name} submitted a website inquiry. Reply to this email to respond directly to the customer.`,
+    "New request",
+    `${v.name} submitted a ${requestType}. Reply to this email to respond directly to the customer.`,
     `${detailsTable}<p style="margin:22px 0 0;color:#626878;font-size:13px;line-height:1.6">This inquiry is also saved in the website admin inbox.</p>`,
   );
   const customerHtml = emailFrame(
-    "Inquiry received",
+    "Request received",
     "We’ve received your request and will review the details. We’ll follow up using the contact information you provided.",
     `${detailsTable}<p style="margin:22px 0 0;padding:16px 18px;border-left:3px solid #c9a227;background:#f9f9f7;color:#626878;font-size:13px;line-height:1.6">Your inquiry is a starting point for a conversation. It is not a booking, contract, or final quote.</p>`,
   );
-  const ownerText = `A new website inquiry has been received. Reply to this email to respond directly to the customer.\n\n${textDetails}\n\nThis inquiry is also saved in the website admin inbox.`;
+  const ownerText = `A new ${requestType} has been received. Reply to this email to respond directly to the customer.\n\n${textDetails}\n\nThis request is also saved in the website admin inbox.`;
   const customerText = `Thank you, ${v.name}. We’ve received your request and will review the details. We’ll follow up using the contact information you provided.\n\n${textDetails}\n\nYour inquiry is a starting point for a conversation. It is not a booking, contract, or final quote.`;
 
   const send = async (to: string, subject: string, text: string, html: string, replyTo?: string) => {
@@ -183,9 +184,9 @@ async function notify(id: string, v: Record<string, string>) {
   };
 
   const [ownerSent, customerSent] = await Promise.all([
-    send(ownerEmail, `New website inquiry · ${v.name}`.slice(0, 120), ownerText, ownerHtml, customerEmail),
+    send(ownerEmail, `New ${requestType} · ${v.name}`.slice(0, 120), ownerText, ownerHtml, customerEmail),
     customerEmail
-      ? send(customerEmail, "We received your inquiry | Aidenn’s Designs", customerText, customerHtml, from)
+      ? send(customerEmail, `We received your request | Aidenn’s Designs`, customerText, customerHtml, from)
       : Promise.resolve(null),
   ]);
   const status = ownerSent
