@@ -18,7 +18,7 @@ const pricing = (heading: string, intro: string, withTerms: boolean): Section =>
     heading,
     intro,
     tiers: [
-      { name: "Website design & setup", price: "$250", cadence: "one time", description: "Design and initial setup for a hosted small-business website.", features: "One-time setup payment\nDomain cost is separate\nChoose a quarterly care plan for hosting and management, or buy the website outright for $500" },
+      { name: "Website design & setup", price: "$250", cadence: "one time", description: "Design and initial setup for a hosted business website.", features: "One-time setup payment\nDomain cost is separate\nChoose a quarterly care plan for hosting and management, or buy the website outright for $500" },
       { name: "Domain name", price: "$50–$100+", cadence: "varies by domain", description: "The client pays the domain cost; Aidenn's Designs owns and manages the domain.", features: "The cost may be higher for a premium or popular domain\nYou approve the exact registration and renewal price before purchase\nYou may request a transfer of domain ownership" },
       { name: "Essential care", price: "$50", cadence: "per quarter", description: "Hosting and ongoing website management.", features: "Hosting and management\nOne set of revisions per quarter" },
       { name: "Monthly revision care", price: "$75", cadence: "per quarter", description: "Hosting and ongoing website management with a monthly revision set.", features: "Hosting and management\nOne set of revisions each month\nUnused monthly revisions expire; they do not roll over" },
@@ -65,13 +65,13 @@ export const SEED_PAGES: { slug: string; content: PageContent }[] = [
     slug: "home",
     content: page(
       "Home",
-      "Aidenn's Designs — Small Business Website Design",
-      "Aidenn's Designs builds small-business websites for $250 plus a separately quoted domain, with optional quarterly hosting and care plans.",
+      "Aidenn's Designs — Website Design for Businesses",
+      "Aidenn's Designs builds websites for businesses for $250 plus a separately quoted domain, with optional quarterly hosting and care plans.",
       [
         s("hero", {
           variant: "home", eyebrow: "Built with care",
           headline: "Make your business *look the part.*",
-          body: "Professional websites and thoughtful digital design that help small businesses make a confident first impression.",
+          body: "Professional websites and thoughtful digital design that help businesses make a confident first impression.",
           primary: REQUEST, secondary: L("View Projects", "/work"), image: null, anchor: "",
         }),
         s("projects", { eyebrow: "Projects", heading: "Recent projects", intro: "", limit: "6", link: L("See all projects", "/work"), anchor: "" }),
@@ -168,11 +168,11 @@ export const SEED_PAGES: { slug: string; content: PageContent }[] = [
   },
   {
     slug: "about",
-    content: page("About", "About — Aidenn's Designs", "About Aidenn's Designs, a website design studio for small businesses.", [
-      s("hero", { variant: "page", eyebrow: "About", headline: "A website studio for *small businesses*", body: "", primary: null, secondary: null, image: null, anchor: "" }),
+    content: page("About", "About — Aidenn's Designs", "About Aidenn's Designs, a website design studio for businesses.", [
+      s("hero", { variant: "page", eyebrow: "About", headline: "A website studio for *businesses*", body: "", primary: null, secondary: null, image: null, anchor: "" }),
       s("text", {
         anchor: "", eyebrow: "", heading: "What Aidenn's Designs does",
-        body: "Aidenn's Designs designs and builds websites for small businesses, and offers hosting and ongoing website management through quarterly care plans.\n\nWebsite design and setup is $250. Domain registration and renewal are separate and vary by domain. Care plans are $50 or $75 per quarter, or you may purchase the website outright for $500 and take over hosting yourself.",
+        body: "Aidenn's Designs designs and builds websites for businesses, and offers hosting and ongoing website management through quarterly care plans.\n\nWebsite design and setup is $250. Domain registration and renewal are separate and vary by domain. Care plans are $50 or $75 per quarter, or you may purchase the website outright for $500 and take over hosting yourself.",
         tone: "plain", link: null,
       }),
       s("features", {
@@ -224,13 +224,13 @@ export const SEED_SETTINGS: SiteSettings = {
   nav: [L("Projects", "/work"), L("Services & Pricing", "/services"), L("Process", "/process"), L("About", "/about"), L("FAQ", "/faq")],
   headerCta: REQUEST,
   footerHeading: "Ready when *you are.*",
-  footerBlurb: "Custom websites and digital design for small businesses.",
+  footerBlurb: "Custom websites and digital design for businesses.",
   footerLinks: [L("Projects", "/work"), L("Services & Pricing", "/services"), L("Process", "/process"), L("About", "/about"), L("FAQ", "/faq"), L("Request a Website", "/contact"), L("Aidenn’s Tutoring", "https://aidennstutoring.com")],
   contactEmail: "aidenn@aidennsdesigns.com",
   contactPhone: "949-795-7036",
   social: [],
   tutoringUrl: "https://aidennstutoring.com",
-  defaultDescription: "Aidenn's Designs designs and builds professional websites for small businesses.",
+  defaultDescription: "Aidenn's Designs designs and builds professional websites for businesses.",
   defaultShareImage: null,
 };
 

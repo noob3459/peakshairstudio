@@ -19,16 +19,32 @@ export type Testimonial = {
 };
 
 const iso = (d: any) => (d ? new Date(d).toISOString() : "");
+const SMALL_BUSINESS_COPY = /\bsmall[\s-]+business(es)?\b/gi;
+function updateBusinessLanguage<T>(value: T): T {
+  if (typeof value === "string") {
+    return value.replace(SMALL_BUSINESS_COPY, (match, plural: string | undefined) => {
+      const replacement = plural ? "businesses" : "business";
+      if (match === match.toUpperCase()) return replacement.toUpperCase();
+      if (match[0] === match[0].toUpperCase()) return replacement[0].toUpperCase() + replacement.slice(1);
+      return replacement;
+    }) as T;
+  }
+  if (Array.isArray(value)) return value.map(updateBusinessLanguage) as T;
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, updateBusinessLanguage(item)])) as T;
+  }
+  return value;
+}
 const toPage = (r: any): PageRow => ({
-  id: r.id, slug: r.slug, status: r.status, draft: r.draft, published: r.published,
+  id: r.id, slug: r.slug, status: r.status, draft: updateBusinessLanguage(r.draft), published: updateBusinessLanguage(r.published),
   updatedAt: iso(r.updated_at), publishedAt: r.published_at ? iso(r.published_at) : null,
 });
-const toProject = (r: any): Project => ({
+const toProject = (r: any): Project => updateBusinessLanguage({
   id: r.id, slug: r.slug, name: r.name, summary: r.summary, details: r.details, services: r.services ?? [],
   kind: r.kind, clientConfirmed: r.client_confirmed, cover: r.cover ?? null, gallery: r.gallery ?? [],
   liveUrl: r.live_url, status: r.status, sortOrder: r.sort_order, updatedAt: iso(r.updated_at),
 });
-const toTestimonial = (r: any): Testimonial => ({
+const toTestimonial = (r: any): Testimonial => updateBusinessLanguage({
   id: r.id, quote: r.quote, person: r.person, business: r.business, role: r.role, image: r.image ?? null,
   status: r.status, sortOrder: r.sort_order, updatedAt: iso(r.updated_at),
 });
@@ -36,7 +52,7 @@ const toTestimonial = (r: any): Testimonial => ({
 // ---- settings ----
 export async function getSettings(): Promise<SiteSettings> {
   const rows = await query<{ value: Partial<SiteSettings> }>("select value from settings where key = 'site'");
-  return { ...SEED_SETTINGS, ...(rows[0]?.value ?? {}) };
+  return updateBusinessLanguage({ ...SEED_SETTINGS, ...(rows[0]?.value ?? {}) });
 }
 
 // ---- pages ----
