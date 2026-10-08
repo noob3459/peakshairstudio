@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./homepage-film.module.css";
+import { MotionReveal } from "./motion-primitives";
 
 const DESKTOP_VIDEO = "/videos/aidenns-homepage-wide.mp4";
 const MOBILE_VIDEO = "/videos/aidenns-homepage-mobile.mp4";
@@ -37,12 +38,14 @@ export function HomepageFilm() {
   return (
     <section className={styles.section} aria-labelledby="homepage-film-heading">
       <div className={styles.wrap}>
-        <header className={styles.heading}>
-          <p className={styles.eyebrow}>A look behind the design</p>
-          <h2 id="homepage-film-heading">From first line of code to finished website.</h2>
-          <p>See how thoughtful design and careful development bring a website to life.</p>
-        </header>
-        <div className={styles.player}>
+        <MotionReveal className={styles.heading}>
+          <header>
+            <p className={styles.eyebrow}>A look behind the design</p>
+            <h2 id="homepage-film-heading">From first line of code to finished website.</h2>
+            <p>See how thoughtful design and careful development bring a website to life.</p>
+          </header>
+        </MotionReveal>
+        <MotionReveal className={styles.player} delay={0.12}>
           <video
             ref={videoRef}
             className={styles.video}
@@ -66,7 +69,7 @@ export function HomepageFilm() {
             <span aria-hidden="true">{soundOn ? "◖))" : "◖×"}</span>
             {soundOn ? "Sound on" : "Sound off"}
           </button>
-        </div>
+        </MotionReveal>
       </div>
     </section>
   );

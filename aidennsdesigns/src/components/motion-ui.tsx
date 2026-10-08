@@ -10,7 +10,14 @@ export function AnimatedFAQItem({ question, answer }: { question: string; answer
   const answerId = useId();
 
   return (
-    <motion.div className="faq-item" layout transition={{ type: "spring", stiffness: 360, damping: 34 }}>
+    <motion.div
+      className="faq-item"
+      layout
+      initial={reduce ? false : { opacity: 0, y: 12 }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ type: "spring", stiffness: 360, damping: 34, duration: 0.55 }}
+    >
       <button
         className="faq-trigger"
         type="button"

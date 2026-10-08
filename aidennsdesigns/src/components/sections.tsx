@@ -70,10 +70,11 @@ async function One({ s }: { s: Section }) {
           <div className="wrap">
             <Head id={hid} eyebrow={s.eyebrow} heading={s.heading} intro={s.intro} />
             <div className="steps-scroll">
-              <ol className="steps" style={{
+              <ol className={`steps${s.steps.length > 3 ? " steps-grid" : ""}`} style={{
                 "--step-count": s.steps.length,
-                "--steps-width": `${Math.min(s.steps.length * 330, 1180)}px`,
-                "--step-line": `${s.steps.length > 1 ? ((s.steps.length - 1) / s.steps.length) * 100 : 0}%`,
+                "--step-columns": Math.min(s.steps.length, 3),
+                "--steps-width": "100%",
+                "--step-line": `calc((100% - 40px) * ${s.steps.length > 1 ? (s.steps.length - 1) / s.steps.length : 0})`,
               } as CSSProperties}>
                 {s.steps.map((it: any, i: number) => (
                   <MotionItem key={i} index={i} className="step-item" timeline>

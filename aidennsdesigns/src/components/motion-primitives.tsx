@@ -4,7 +4,7 @@ import { motion, useAnimationControls, useInView, useReducedMotion, useScroll, u
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 const reveal = {
-  hidden: { opacity: 0, y: 26, filter: "blur(7px)" },
+  hidden: { opacity: 0, y: 20, filter: "blur(3px)" },
   visible: { opacity: 1, y: 0, filter: "blur(0px)" },
 };
 
@@ -31,7 +31,7 @@ export function MotionReveal({ children, className = "", delay = 0 }: { children
       initial={false}
       animate={controls}
       variants={reveal}
-      transition={{ duration: 0.82, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.68, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -46,7 +46,7 @@ export function MotionItem({ children, className = "", index = 0, timeline = fal
   const controls = useAnimationControls();
   useEffect(() => setReady(true), []);
   useEffect(() => {
-    const hidden = { opacity: 0, y: 22, filter: "blur(5px)" };
+    const hidden = { opacity: 0, y: 16, filter: "blur(2px)" };
     const visible = { opacity: 1, y: 0, filter: "blur(0px)" };
     if (reduce) controls.set(visible);
     else if (ready && inView) {
@@ -63,8 +63,8 @@ export function MotionItem({ children, className = "", index = 0, timeline = fal
       style={style}
       initial={false}
       animate={controls}
-      transition={{ duration: 0.72, delay: index * (timeline ? 0 : 0.08), ease: [0.22, 1, 0.36, 1] }}
-      whileHover={reduce ? undefined : { y: -5, transition: { type: "spring", stiffness: 300, damping: 24 } }}
+      transition={{ duration: 0.62, delay: index * (timeline ? 0 : 0.065), ease: [0.22, 1, 0.36, 1] }}
+      whileHover={reduce ? undefined : { y: -4, transition: { type: "spring", stiffness: 300, damping: 26 } }}
       whileTap={reduce ? undefined : { scale: 0.985 }}
     >
       {children}
@@ -101,10 +101,9 @@ export function MotionCallToAction() {
     <motion.a
       href="/contact"
       className="project-make-link"
-      whileHover={reduce ? undefined : { y: -2, scale: 1.025 }}
+      whileHover={reduce ? undefined : { y: -2, scale: 1.02, boxShadow: "0 10px 24px -16px rgba(201,162,39,.65)" }}
       whileTap={reduce ? undefined : { scale: 0.98 }}
-      animate={reduce ? undefined : { boxShadow: ["0 0 0 0 rgba(201,162,39,.08)", "0 0 0 6px rgba(201,162,39,.12)", "0 0 0 0 rgba(201,162,39,.08)"] }}
-      transition={reduce ? undefined : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+      transition={reduce ? undefined : { type: "spring", stiffness: 320, damping: 24 }}
     >
       <span>Make a website like this</span><span aria-hidden="true">↗</span>
     </motion.a>
