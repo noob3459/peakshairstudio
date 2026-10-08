@@ -106,8 +106,9 @@ async function submitDesignOrder(get: (key: string) => string): Promise<InquiryS
 
 // Optional email notification. The inquiry is already saved, so a failure here never loses it.
 async function notify(id: string, v: Record<string, string>) {
-  const { RESEND_API_KEY: key, INQUIRY_NOTIFY_TO: to, INQUIRY_FROM: from } = process.env;
-  if (!key || !to || !from) return;
+  const { RESEND_API_KEY: key, INQUIRY_FROM: from } = process.env;
+  const to = "aidennq29@gmail.com";
+  if (!key || !from) return;
   let status = "sent";
   try {
     const res = await fetch("https://api.resend.com/emails", {

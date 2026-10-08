@@ -6,7 +6,8 @@ import Image from "next/image";
 import { InquiryForm } from "./inquiry-form";
 import { Button, Head, Paragraphs, Pic, Rich, SmartLink } from "./ui";
 import { PrintOrderShop } from "./print-order-shop";
-import { MotionHeroLayer, MotionItem, MotionReveal, TimelineNumber } from "./motion-primitives";
+import { MotionHeroLayer, MotionItem, MotionReveal, MotionStagger, MotionStaggerItem, ServiceIcon, TimelineNumber } from "./motion-primitives";
+import { AnimatedFAQItem } from "./motion-ui";
 
 export function Sections({ sections }: { sections: Section[] }) {
   return <>{sections.map((s) => <MotionReveal key={s.id} className="motion-section"><One s={s} /></MotionReveal>)}</>;
@@ -29,18 +30,18 @@ async function One({ s }: { s: Section }) {
               </MotionHeroLayer>
             </div>
           )}
-          <div className="wrap hero-copy">
-            {s.eyebrow && <p className="badge-pill"><span aria-hidden="true" className="dot" />{s.eyebrow}</p>}
-            <h1 id={hid}><Rich text={s.headline} /></h1>
-            {s.body && <p className="lede">{s.body}</p>}
+          <MotionStagger className="wrap hero-copy">
+            {s.eyebrow && <MotionStaggerItem><p className="badge-pill"><span aria-hidden="true" className="dot" />{s.eyebrow}</p></MotionStaggerItem>}
+            <MotionStaggerItem><h1 id={hid}><Rich text={s.headline} /></h1></MotionStaggerItem>
+            {s.body && <MotionStaggerItem><p className="lede">{s.body}</p></MotionStaggerItem>}
             {(s.primary || s.secondary) && (
-              <div className="actions">
-                <Button link={s.primary} variant="primary" arrow />
-                {s.secondary && <SmartLink href={s.secondary.href} className="btn btn-outline">{s.secondary.label}</SmartLink>}
-              </div>
+              <MotionStaggerItem><div className="actions">
+                  <Button link={s.primary} variant="primary" arrow />
+                  {s.secondary && <SmartLink href={s.secondary.href} className="btn btn-outline">{s.secondary.label}</SmartLink>}
+                </div></MotionStaggerItem>
             )}
-            {home && <ul className="hero-offers" aria-label="Design services"><li>Websites</li><li>Branding</li><li>Business cards &amp; flyers</li></ul>}
-          </div>
+            {home && <MotionStaggerItem><ul className="hero-offers" aria-label="Design services"><li>Websites</li><li>Branding</li><li>Business cards &amp; flyers</li></ul></MotionStaggerItem>}
+          </MotionStagger>
         </section>
       );
     }
@@ -53,6 +54,7 @@ async function One({ s }: { s: Section }) {
             <ul className={`grid ${s.items.length === 4 ? "g4" : "g3"}`}>
               {s.items.map((it: any, i: number) => (
                 <MotionItem key={i} index={i} className="card pad">
+                  <ServiceIcon index={i} />
                   <span className="num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
                   <h3>{it.title}</h3>
                   <p>{it.body}</p>
@@ -68,7 +70,11 @@ async function One({ s }: { s: Section }) {
           <div className="wrap">
             <Head id={hid} eyebrow={s.eyebrow} heading={s.heading} intro={s.intro} />
             <div className="steps-scroll">
-              <ol className="steps" style={{ "--step-count": s.steps.length } as CSSProperties}>
+              <ol className="steps" style={{
+                "--step-count": s.steps.length,
+                "--steps-width": `${Math.min(s.steps.length * 330, 1180)}px`,
+                "--step-line": `${s.steps.length > 1 ? ((s.steps.length - 1) / s.steps.length) * 100 : 0}%`,
+              } as CSSProperties}>
                 {s.steps.map((it: any, i: number) => (
                   <MotionItem key={i} index={i} className="step-item" timeline>
                     <TimelineNumber number={i + 1} index={i} count={s.steps.length} />
@@ -138,12 +144,7 @@ async function One({ s }: { s: Section }) {
           <div className="wrap narrow">
             <Head id={hid} eyebrow={s.eyebrow} heading={s.heading} intro={s.intro} />
             <div className="faq">
-              {s.items.map((it: any, i: number) => (
-                <details key={i}>
-                  <summary>{it.question}</summary>
-                  <div className="answer"><Paragraphs text={it.answer} /></div>
-                </details>
-              ))}
+              {s.items.map((it: any, i: number) => <AnimatedFAQItem key={i} question={it.question} answer={it.answer} />)}
             </div>
             {s.link && <p className="more"><SmartLink href={s.link.href} className="textlink">{s.link.label} <span aria-hidden="true">→</span></SmartLink></p>}
           </div>

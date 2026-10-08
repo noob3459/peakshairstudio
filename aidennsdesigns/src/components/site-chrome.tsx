@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { getSettings } from "@/lib/data";
 import { MobileNav } from "./mobile-nav";
 import { Button, Rich, SmartLink } from "./ui";
-import { MotionProgress } from "./motion-primitives";
+import { MotionFooter, MotionHeader, MotionProgress, MotionReveal } from "./motion-primitives";
 
 function BrandMark() {
   return (
@@ -24,7 +24,7 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
       <MotionProgress />
       <a href="#main" className="skip">Skip to content</a>
       {banner}
-      <header className="site-header">
+      <MotionHeader>
         <div className="bar">
           <Link href="/" className="brand" aria-label="Aidenn's Designs home">
             <BrandMark />
@@ -39,26 +39,29 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
             <MobileNav nav={s.nav} />
           </div>
         </div>
-      </header>
+      </MotionHeader>
       <main id="main">{children}</main>
-      <footer className="site-footer on-dark">
+      <MotionFooter>
         <div className="wrap">
-          <div className="foot-top">
+          <MotionReveal className="foot-top">
             <div>
               {s.footerHeading && <p className="foot-h" role="presentation"><Rich text={s.footerHeading} /></p>}
               {s.footerBlurb && <p className="foot-blurb">{s.footerBlurb}</p>}
             </div>
             <Button link={s.headerCta} variant="primary" arrow />
-          </div>
+          </MotionReveal>
           <div className="foot-cols">
-            <div>
+            <MotionReveal>
               <p className="brand"><BrandMark /><span>Aidenn's Designs</span></p>
-            </div>
-            <nav aria-label="Footer">
+            </MotionReveal>
+            <MotionReveal delay={0.08}>
+              <nav aria-label="Footer">
               <p className="mono-label">Pages</p>
               <ul className="foot-links">{s.footerLinks.map((l) => <li key={l.href + l.label}><SmartLink href={l.href}>{l.label}</SmartLink></li>)}</ul>
-            </nav>
-            <div>
+              </nav>
+            </MotionReveal>
+            <MotionReveal delay={0.16}>
+              <div>
               <p className="mono-label">Contact</p>
               <ul className="foot-links">
                 {s.contactEmail && <li><SmartLink href={`mailto:${s.contactEmail}`}>{s.contactEmail}</SmartLink></li>}
@@ -66,11 +69,12 @@ export async function SiteChrome({ children, banner }: { children: ReactNode; ba
                 {s.social.map((l) => <li key={l.href}><SmartLink href={l.href}>{l.label}</SmartLink></li>)}
                 {!hasContact && <li><SmartLink href={s.headerCta.href}>Use the request form</SmartLink></li>}
               </ul>
-            </div>
+              </div>
+            </MotionReveal>
           </div>
-          <div className="legal">© {new Date().getFullYear()} <strong className="site-wordmark">Aidenn's Designs</strong>. All rights reserved.</div>
+          <MotionReveal className="legal" delay={0.12}>© {new Date().getFullYear()} <strong className="site-wordmark">Aidenn's Designs</strong>. All rights reserved.</MotionReveal>
         </div>
-      </footer>
+      </MotionFooter>
     </>
   );
 }

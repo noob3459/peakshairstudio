@@ -19,10 +19,10 @@ With `DATABASE_URL` unset, dev uses an embedded throwaway Postgres in `.data/` (
 2. **Owner login:** run `npm run owner:setup`, set the printed `OWNER_PASSWORD_HASH` and `SESSION_SECRET`, and set `OWNER_EMAIL`.
    - Recovery: re-run the script, replace `OWNER_PASSWORD_HASH`, redeploy. All existing sessions are signed out. There is no email-based reset.
 3. `NEXT_PUBLIC_SITE_URL` → the real domain (canonical/share URLs).
-4. Optional inquiry email: set `RESEND_API_KEY`, `INQUIRY_NOTIFY_TO`, `INQUIRY_FROM` (a Resend-verified sender). Until then inquiries are only in `/admin/inquiries`; nothing is emailed.
+4. Inquiry email: set `RESEND_API_KEY` and `INQUIRY_FROM` (a Resend-verified sender). Website and design inquiries are delivered to `aidennq29@gmail.com`; they are also saved in `/admin/inquiries`.
 
 ## Environment variables
-`DATABASE_URL`, `OWNER_EMAIL`, `OWNER_PASSWORD_HASH`, `SESSION_SECRET`, `NEXT_PUBLIC_SITE_URL`, optional `RESEND_API_KEY`, `INQUIRY_NOTIFY_TO`, `INQUIRY_FROM`. Never commit real values.
+`DATABASE_URL`, `OWNER_EMAIL`, `OWNER_PASSWORD_HASH`, `SESSION_SECRET`, `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY`, `INQUIRY_FROM`. Never commit real values.
 
 ## Security notes
 - Every admin page, server action and route handler calls `requireOwner()`; the proxy is only a convenience redirect.
