@@ -4,7 +4,7 @@ const config: NextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ["@electric-sql/pglite", "sharp", "pg"],
   images: {
-    localPatterns: [{ pathname: "/media/**" }, { pathname: "/products/**" }, { pathname: "/hero-mockups.webp" }],
+    localPatterns: [{ pathname: "/media/**" }, { pathname: "/products/**" }, { pathname: "/hero-mockups.webp" }, { pathname: "/aidenns-designs-mark.png" }],
     formats: ["image/avif", "image/webp"],
   },
   experimental: {
