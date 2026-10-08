@@ -11,7 +11,12 @@ type Inquiry = {
 
 type Filter = "all" | "new" | "handled";
 const EMAIL_STATUS: Record<string, string> = {
-  not_configured: "Email alert not configured", sent: "Email alert sent",
+  not_configured: "Email alert not configured",
+  sent: "Owner copy and customer confirmation sent",
+  sent_owner_only: "Owner copy sent; no customer email was provided",
+  sent_customer_failed: "Owner copy sent; customer email failed",
+  customer_only: "Customer confirmation sent; owner email failed",
+  failed: "Owner and customer emails failed",
 };
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 

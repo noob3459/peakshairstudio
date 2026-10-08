@@ -104,25 +104,96 @@ async function submitDesignOrder(get: (key: string) => string): Promise<InquiryS
   return { status: "success", errors: {} };
 }
 
-// Optional email notification. The inquiry is already saved, so a failure here never loses it.
+// The inquiry is already saved, so an email failure never loses the request.
 async function notify(id: string, v: Record<string, string>) {
   const { RESEND_API_KEY: key, INQUIRY_FROM: from } = process.env;
-  const to = "aidennq29@gmail.com";
   if (!key || !from) return;
-  let status = "sent";
+
+  const ownerEmail = "aidennq29@gmail.com";
+  const customerEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.contact) ? v.contact.trim() : undefined;
+  const details: Array<[string, string]> = [
+    ["Name", v.name],
+    ["Business", v.business],
+    ["Contact", v.contact],
+    ["Current website", v.website],
+    ["About the business", v.about],
+    ["Website goals", v.goals],
+    ["Pages or features", v.features],
+  ];
+  const htmlEntities: Record<string, string> = {
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  };
+  const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (char) => htmlEntities[char]);
+  const textDetails = details.map(([label, value]) => `${label}: ${value || "Not provided"}`).join("\n\n");
+  const htmlDetails = details.map(([label, value]) => `
+    <tr>
+      <td style="padding:13px 16px;border-bottom:1px solid #e3e1da;color:#626878;font-size:13px;font-weight:700;vertical-align:top;width:155px">${escapeHtml(label)}</td>
+      <td style="padding:13px 16px;border-bottom:1px solid #e3e1da;color:#14171f;font-size:15px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere">${escapeHtml(value || "Not provided")}</td>
+    </tr>`).join("");
+  const emailFrame = (title: string, intro: string, body: string) => `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;background:#f4f3ef;color:#14171f;font-family:Arial,Helvetica,sans-serif">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(intro)}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f3ef;padding:32px 12px">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#fff;border:1px solid #e3e1da;border-radius:16px;overflow:hidden">
+        <tr><td style="background:#0b1626;padding:25px 32px;border-bottom:4px solid #c9a227">
+          <div style="color:#fff;font-size:21px;font-weight:700;letter-spacing:-.4px">Aidenn’s Designs</div>
+          <div style="margin-top:6px;color:#e4c65e;font-size:11px;font-weight:700;letter-spacing:2px">WEBSITE DESIGN STUDIO</div>
+        </td></tr>
+        <tr><td style="padding:32px">
+          <div style="margin-bottom:9px;color:#1b3a6b;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">${escapeHtml(title)}</div>
+          <h1 style="margin:0 0 12px;color:#14171f;font-size:28px;line-height:1.2;letter-spacing:-.7px">${escapeHtml(title === "Inquiry received" ? `Thank you, ${v.name}.` : "A new website inquiry")}</h1>
+          <p style="margin:0 0 24px;color:#626878;font-size:15px;line-height:1.7">${escapeHtml(intro)}</p>
+          ${body}
+        </td></tr>
+        <tr><td style="padding:19px 32px;background:#f9f9f7;border-top:1px solid #e3e1da;color:#626878;font-size:12px;line-height:1.6">
+          Aidenn’s Designs <span style="color:#c9a227">•</span> Thoughtful websites for businesses<br>
+          This message relates to a request submitted through aidennsdesigns.com.
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+  const detailsTable = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e3e1da;border-top:3px solid #c9a227;border-radius:12px;border-spacing:0;overflow:hidden">${htmlDetails}</table>`;
+  const ownerHtml = emailFrame(
+    "New inquiry",
+    `${v.name} submitted a website inquiry. Reply to this email to respond directly to the customer.`,
+    `${detailsTable}<p style="margin:22px 0 0;color:#626878;font-size:13px;line-height:1.6">This inquiry is also saved in the website admin inbox.</p>`,
+  );
+  const customerHtml = emailFrame(
+    "Inquiry received",
+    "We’ve received your request and will review the details. We’ll follow up using the contact information you provided.",
+    `${detailsTable}<p style="margin:22px 0 0;padding:16px 18px;border-left:3px solid #c9a227;background:#f9f9f7;color:#626878;font-size:13px;line-height:1.6">Your inquiry is a starting point for a conversation. It is not a booking, contract, or final quote.</p>`,
+  );
+  const ownerText = `A new website inquiry has been received. Reply to this email to respond directly to the customer.\n\n${textDetails}\n\nThis inquiry is also saved in the website admin inbox.`;
+  const customerText = `Thank you, ${v.name}. We’ve received your request and will review the details. We’ll follow up using the contact information you provided.\n\n${textDetails}\n\nYour inquiry is a starting point for a conversation. It is not a booking, contract, or final quote.`;
+
+  const send = async (to: string, subject: string, text: string, html: string, replyTo?: string) => {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from, to, reply_to: replyTo, subject, text, html }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const [ownerSent, customerSent] = await Promise.all([
+    send(ownerEmail, `New website inquiry · ${v.name}`.slice(0, 120), ownerText, ownerHtml, customerEmail),
+    customerEmail
+      ? send(customerEmail, "We received your inquiry | Aidenn’s Designs", customerText, customerHtml, from)
+      : Promise.resolve(null),
+  ]);
+  const status = ownerSent
+    ? (customerSent === true ? "sent" : customerSent === false ? "sent_customer_failed" : "sent_owner_only")
+    : (customerSent === true ? "customer_only" : "failed");
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from, to, reply_to: v.contact.includes("@") ? v.contact : undefined,
-        subject: `Website inquiry from ${v.name}`.slice(0, 120),
-        text: `Name: ${v.name}\nBusiness: ${v.business}\nContact: ${v.contact}\nWebsite: ${v.website}\n\nAbout:\n${v.about}\n\nGoals:\n${v.goals}\n\nPages/features:\n${v.features}`,
-      }),
-    });
-    if (!res.ok) status = `failed_${res.status}`;
-  } catch {
-    status = "failed";
+    await query("update inquiries set email_status = $2 where id = $1", [id, status]);
+  } catch (err) {
+    console.error("inquiry email status update failed", err);
   }
-  await query("update inquiries set email_status = $2 where id = $1", [id, status]);
 }
