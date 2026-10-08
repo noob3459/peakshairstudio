@@ -40,7 +40,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .bar { pointer-events: auto; position: relative; display: flex; align-items: center; gap: 18px; width: min(1280px, 100% - 32px); margin-inline: auto; padding: 9px 12px 9px 18px; background: rgba(11, 22, 38, .78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, .12); border-radius: 999px; box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .45); }
 .brand { display: inline-flex; flex: none; align-items: center; gap: 11px; font: 700 1.08rem/1 var(--display); color: #fff; text-decoration: none; letter-spacing: -.035em; margin: 0; white-space: nowrap; }
 .brand, .brand span, .brand b { color: #fff !important; }
-.mark { flex: none; width: 42px; height: 42px; border-radius: 50%; }
+.mark { flex: none; width: 42px; height: 42px; border-radius: 8px; object-fit: cover; }
 .instagram-header { display: grid; place-items: center; width: 40px; height: 40px; flex: none; color: rgba(255,255,255,.9); border: 1px solid rgba(255,255,255,.16); border-radius: 50%; text-decoration: none; transition: color .2s ease, border-color .2s ease, background-color .2s ease, transform .25s cubic-bezier(.22,1,.36,1); }
 .instagram-header:hover, .instagram-header:focus-visible { color: #fff; border-color: rgba(255,255,255,.42); background: rgba(255,255,255,.08); transform: translateY(-1px); }
 .instagram-header svg { width: 19px; height: 19px; }

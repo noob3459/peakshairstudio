@@ -8,7 +8,7 @@ import { Button, Rich, SmartLink } from "./ui";
 import { MotionFooter, MotionHeader, MotionProgress, MotionReveal } from "./motion-primitives";
 
 function BrandMark() {
-  return <Image className="mark" src="/aidenns-designs-mark.svg" width={42} height={42} alt="" aria-hidden="true" />;
+  return <Image className="mark" src="/aidenns-designs-mark.png" width={42} height={42} alt="" aria-hidden="true" />;
 }
 
 function InstagramGlyph({ className }: { className?: string }) {
