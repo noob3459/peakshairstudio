@@ -141,7 +141,7 @@ export async function getRevision(id: string) {
 
 // ---- inquiries ----
 export async function listInquiries() {
-  const rows = await query("select * from inquiries order by created_at desc limit 200");
+  const rows = await query("select * from inquiries order by created_at desc");
   return rows.map((r: any) => ({
     id: r.id as string, name: r.name as string, business: r.business as string, contact: r.contact as string,
     website: r.website as string, about: r.about as string, goals: r.goals as string, features: r.features as string,
